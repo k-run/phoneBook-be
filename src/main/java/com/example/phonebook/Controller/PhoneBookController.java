@@ -40,20 +40,24 @@ public class PhoneBookController {
     // read api
     // gets the contact by name or by number
     @GetMapping("/read")
-    public ResponseEntity getContact(@RequestParam(required = false) String name,
+    public ResponseEntity getContact(@RequestParam(required = false) String name, @RequestParam(required = false) String id,
                                      @RequestParam(required = false) Long number) throws ResourceNotFoundException {
        PhoneBook sample = new PhoneBook();
        PhoneBook result;
-       if(name != null) {
-           sample.setContactName(name);
-          result = phoneBookRepo.findByContactName(name);
+
+       if(id != null) {
+           result = phoneBookRepo.findById(id).get();
        }
 
-       else  {
-           sample.setMobileNumber(number);
-           result = phoneBookRepo.findBymobileNumber(number);
+       else {
+           if (name != null) {
+               sample.setContactName(name);
+               result = phoneBookRepo.findByContactName(name);
+           } else {
+               sample.setMobileNumber(number);
+               result = phoneBookRepo.findBymobileNumber(number);
+           }
        }
-
        if(result == null) throw new ResourceNotFoundException("The contact you're trying to read does not exists!");
        return ResponseEntity.status(200).body(result);
     }
